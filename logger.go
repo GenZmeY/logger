@@ -1,9 +1,11 @@
 package logger
 
 import (
+	"fmt"
 	"io"
 	"log"
 	"os"
+	"strings"
 )
 
 const (
@@ -30,6 +32,16 @@ func (ll LogLevel) String() string {
 		"Trace",
 		"All",
 	}[ll]
+}
+
+func StringToLogLevel(value string) (LogLevel, error) {
+	for ll := LL_None; ll <= LL_All; ll++ {
+		if strings.EqualFold(value, ll.String()) {
+			return ll, nil
+		}
+	}
+
+	return LL_Info, fmt.Errorf("unknown log level: %s", value)
 }
 
 type Logger struct {
@@ -78,7 +90,7 @@ func New(out io.Writer, tag string, flag int, logLevel LogLevel, printLogLevel b
 
 func (l *Logger) format(msg string) string {
 	if l.printLogLevel {
-		msg = l.logLevel.String() + ": " + msg
+		msg = l.logLevel.String() + ": " + msg + "\n"
 	}
 	return msg
 }
